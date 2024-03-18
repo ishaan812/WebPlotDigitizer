@@ -305,6 +305,7 @@
     <p align="center"><input type="button" value="{{ _("OK") }}" onclick="wpd.alignAxes.align();"></p>
 </div>
 
+
 <!-- View Data -->
 <div id="csvWindow" class="popup" style="width: 800px; height: 480px;">
     <div class="popupheading">{{ _("Acquired Data") }}</div>
@@ -320,7 +321,7 @@
                 <p align="center">
                     <input type="button" value="{{ _("Copy to Clipboard") }}" onclick="wpd.dataTable.copyToClipboard();" />
                     <input type="button" value="{{ _("Download .CSV") }}" onclick="wpd.dataTable.generateCSV();" />
-                    <!-- <input type="button" value="{{ _("Graph in Plotly*") }}" onclick="wpd.dataTable.exportToPlotly();" /> -->
+                    <input type="button" value="{{ _("Generate Insights") }}" onclick="wpd.popup.close('csvWindow');wpd.popup.show('insightsWindow');" />
                     <input type="button" value="{{ _("Close") }}" onclick="wpd.popup.close('csvWindow');" />
                 </p>
                 <p align="center" class="footnote">{{ _("*Plotly is a secure data analysis and graphing site with data sharing and access controls.") }}</p>
@@ -358,6 +359,43 @@
             </td>
         </tr>
     </table>
+</div>
+
+<div id="insightsWindow" class="popup" style="width: 90%; height: 600px;">
+    <div class="popupheading">
+        {{ _("Acquired Insights comparative study") }}
+        <input type="button" value="{{ _("Close") }}" onclick="wpd.popup.close('insightsWindow');" />
+    </div>
+    <p align="center">
+        <textarea id="inputPrompt" style="width: 240px; height: 60px;"></textarea>
+        <input type="button" value="{{ _("Generate Insights") }}" onclick="wpd.dataTable.generateInsights();" />
+    </p>
+    <div class="table-container">
+        <table style="border-collapse: collapse; width: 100%; height: 420px;">
+            <tr>
+                <td style="width: 33.33%; border: 1px solid black;padding: 10px;height:30px;font-weight: 800;text-align: center;">
+                    <div id="h1">Mistral</div>
+                </td>
+                <td style="width: 33.33%; border: 1px solid black;padding: 10px;height:30px;font-weight: 800;text-align: center;">
+                    <div id="h2">Llama2</div>
+                </td>
+                <td style="width: 33.33%; border: 1px solid black;padding: 10px;height:30px;font-weight: 800;text-align: center;">
+                    <div id="h3">Gemma</div>
+                </td>
+            </tr>
+            <tr>
+                <td style="width: 33.33%; border: 1px solid black;padding: 10px;">
+                    <div id="mistral" style="overflow-y: scroll; height: 100%;padding: 10px;">Loading....</div>
+                </td>
+                <td style="width: 33.33%; border: 1px solid black;">
+                    <div id="llama2" style="overflow-y: scroll; height: 100%;padding: 10px;">Loading....</div>
+                </td>
+                <td style="width: 33.33%; border: 1px solid black;">
+                    <div id="gemma" style="overflow-y: scroll; height: 100%;padding: 10px;">Loading....</div>
+                </td>
+            </tr>
+        </table>
+    </div>
 </div>
 
 <!-- XY Axes Calibration Instructions -->

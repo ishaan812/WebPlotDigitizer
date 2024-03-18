@@ -350,6 +350,144 @@ wpd.dataTable = (function() {
         wpd.download.csv(tableText, datasetName + ".csv");
     }
 
+    function poll(getURL, requestOptions, modelId){
+        setTimeout(() => {
+            fetch(getURL, requestOptions)
+                .then((response) => response.json())
+                .then((result) => {
+                    console.log({modelId, result})
+                    const lol = result.output.join("")
+                    document.getElementById(modelId).textContent = lol
+                }) 
+                .catch((error) => {
+                    console.log(error)
+                    document.getElementById(modelId).textContent = error
+        });
+        }, 20000);
+    }
+
+    function generateInsights(){
+        const dataForInsights = tableText
+        const inputPrompt = document.getElementById("inputPrompt").value
+        let prompt = "Analyze the trends given in the data provided. The data is of a stock in the stock market. Here is some additional data:"+inputPrompt+" Give me some advice and predict how this stock will perform in the future. Give deep analytics in structured manner and be precise dont make up stuff."  + dataForInsights
+        const myHeaders = new Headers();          
+        myHeaders.append("Authorization", "Token r8_VhkQUk5QGQK2DdK8CoGgoTSe2cepOHT47F2TZ");
+        myHeaders.append("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+
+        const rawGemma = JSON.stringify({
+            "version": "2790a695e5dcae15506138cc4718d1106d0d475e6dca4b1d43f42414647993d5",
+            "input": {
+              "top_k": 50,
+              "top_p": 0.95,
+              "prompt": prompt,
+              "temperature": 0.7,
+              "max_new_tokens": 1024,
+              "min_new_tokens": -1,
+              "repetition_penalty": 1
+            }
+        });
+        
+        const requestOptionsgemma = {
+            mode:"cors",
+            method: "POST",
+            headers: myHeaders,
+            body: rawGemma,
+            redirect: "follow"
+        };
+
+        const rawMistral = JSON.stringify({
+            "input": {
+              "top_k": 50,
+              "top_p": 0.9,
+              "prompt": prompt, 
+              "temperature": 0.6,
+              "max_new_tokens": 1024,
+              "prompt_template": "<s>[INST] {prompt} [/INST] ",
+              "presence_penalty": 0,
+              "frequency_penalty": 0
+            }
+        })
+        
+        const requestOptionsmistral = {
+            mode:"cors",
+            method: "POST",
+            headers: myHeaders,
+            body: rawMistral,
+            redirect: "follow"
+        };
+
+
+        const rawLlama = JSON.stringify({
+            "input": {
+              "debug": false,
+              "top_k": -1,
+              "top_p": 1,
+              "prompt": prompt,
+              "temperature": 0.75,
+              "system_prompt": "You are a helpful, respectful and honest assistant. Always answer as helpfully as possible, while being safe. Your answers should not include any harmful, unethical, racist, sexist, toxic, dangerous, or illegal content. Please ensure that your responses are socially unbiased and positive in nature.\\n\\nIf a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. If you don\'t know the answer to a question, please don\'t share false information.",
+              "max_new_tokens": 800,
+              "min_new_tokens": -1,
+              "repetition_penalty": 1
+            }     
+        }) 
+
+        const requestOptionsllama = {
+            mode:"cors",
+            method: "POST",
+            headers: myHeaders,
+            body: rawLlama,
+            redirect: "follow"
+        };
+
+        
+        fetch("https://api.replicate.com/v1/predictions", requestOptionsgemma)
+        .then((response) => response.json())
+        .then((result) => {
+            console.log({result});
+            const getURL = result.urls.get;
+                const requestOptionslol = {
+                    mode:"cors",
+                    method: "GET",
+                    headers: myHeaders,
+                    redirect: "follow"
+                };
+            setInterval(poll(getURL, requestOptionslol, "gemma"), 20000)
+        })
+        .catch((error) => console.error(error));
+
+        fetch("https://api.replicate.com/v1/models/mistralai/mixtral-8x7b-instruct-v0.1/predictions", requestOptionsmistral)
+        .then((response) => response.json())
+        .then((result) => {
+            console.log({result});
+            const getURL = result.urls.get;
+            const requestOptions3 = {
+                mode:"cors",
+                method: "GET",
+                headers: myHeaders,
+                redirect: "follow"
+            };
+            setInterval(poll(getURL, requestOptions3, "mistral"), 20000)
+        })
+        .catch((error) => console.error(error));
+
+        fetch("https://api.replicate.com/v1/models/meta/llama-2-7b-chat/predictions", requestOptionsllama)
+        .then((response) => response.json())
+        .then((result) => {
+            console.log({result});
+            const getURL = result.urls.get;
+            const requestOptions2 = {
+                mode:"cors",
+                method: "GET",
+                headers: myHeaders,
+                redirect: "follow"
+            };
+            setInterval(poll(getURL, requestOptions2, "llama2"), 20000)
+        })
+        .catch((error) => console.error(error));
+    }
+
+
+    
     function exportToPlotly() {
         if (sortedData == null) {
             return;
@@ -398,6 +536,7 @@ wpd.dataTable = (function() {
         copyToClipboard: copyToClipboard,
         generateCSV: generateCSV,
         exportToPlotly: exportToPlotly,
-        changeDataset: changeDataset
+        changeDataset: changeDataset,
+        generateInsights:generateInsights
     };
 })();

@@ -60,7 +60,6 @@ data = """
 7.1, 1.6
 """
 prompt = "Analyze the trends given in the data provided. Give descriptions of the relationships you can notice within the data : " + data
-print(prompt)
 iterator = replicate.run(
   "mistralai/mixtral-8x7b-instruct-v0.1",
   input={"prompt": prompt},

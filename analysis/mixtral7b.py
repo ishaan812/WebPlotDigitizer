@@ -67,7 +67,7 @@ iterator = replicate.run(
         "top_k": 50,
         "top_p": 0.9,
         "prompt": prompt,
-        "temperature": 0.6,
+        "temperature": 0.2,
         "max_new_tokens": 1024,
         "prompt_template": "<s>[INST] {prompt} [/INST] ",
         "presence_penalty": 0,
